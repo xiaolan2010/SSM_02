@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!--命名空间，可以对sql进行分类的一个管理 -->
+<mapper namespace="com.xl.agile.modules.sys.dao.UserMapper">
+  <resultMap id="BaseResultMap" type="com.xl.agile.modules.sys.entity.User">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="pwd" jdbcType="VARCHAR" property="pwd" />
+    <result column="sex" jdbcType="VARCHAR" property="sex" />
+    <result column="home" jdbcType="VARCHAR" property="home" />
+    <result column="info" jdbcType="VARCHAR" property="info" />
+  </resultMap>
+  <!-- sql 标签 -->
+  <sql id="Base_Column_List">
+    id, name, pwd, sex, home, info
+  </sql>
+  
+    <!-- 查询全部 -->
+    <select id="findAll"  resultType="com.xl.agile.modules.sys.entity.User">
+      select 
+      <!-- refid属性与上面spl标签的Id一致 -->
+      <include refid="Base_Column_List" />
+      from user 
+      <where>
+	       <if test="name != null and name !=''" >
+	          name LIKE concat('%',#{name},'%');
+	       </if>
+	       <if test="info != null and info !=''" >
+	         and info LIKE concat('%',#{info},'%');
+	       </if>
+      </where>
+      
+    </select>
+    <!-- 根据ID查询-->
+    <!-- 第1种 -->
+     <select id="findById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List" />
+        from user 
+        where id=#{id};
+    </select>
+    <!-- 第2种 -->
+<!--     <select id="findById" parameterType="java.lang.Integer" resultType="com.xl.agile.modules.sys.entity.User">
+        select *
+        from user where id=#{id};
+    </select> -->
+    <!-- 插入-->
+    <insert id="insertUser" parameterType="User">
+        insert into user
+        (name,pwd,sex,home,info)values(#{name},#{pwd},#{sex},#{home},#{info});
+    </insert>
+    <!-- 删除-->
+    <delete id="deleteUserById" parameterType="int">
+        delete from user
+        where id=#{id}
+    </delete>
+    <!-- 更新-->
+    <update id="updateUser" parameterType="User">
+        update  user set
+        name=#{name},pwd=#{pwd},sex=#{sex},home=#{home},info=#{info} where
+        id=#{id} 
+    </update>
+</mapper>

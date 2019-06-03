@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+<!-- ************************* 站台名称，站台描述，大小图标  ************************* --> 
+  <display-name>springmvc-01</display-name>
+    <!-- <description>web.xml</description> -->
+    <icon>
+       <small-icon>/static/img/favicon.ico</small-icon>
+       <large-icon>/static/img/favicon.ico</large-icon>
+    </icon>
+<!-- *************************SpringIOC的相关设置 ************************* -->
+	<listener>
+        <!-- 注册Spring的ServletContext监听器，监听到服务器启动时，自动执行ContextLoaderListener的方法初始化Spring -->
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <context-param>
+        <!-- 加载Spring的配置文件，随着监听器触发，Spring调用这里，找到Spring的核心配置文件 -->
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring-context.xml</param-value>
+    </context-param> 
+    
+    <!-- Spring和mybatis的配置文件 -->
+<!-- 	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:spring-context-mybatis.xml</param-value>
+	</context-param> -->
+    
+<!-- ************************* SpringMVC的相关设置  begin ************************* -->
+	<!-- springmvc前端控制器  配置DispatchcerServlet-->
+	<servlet>
+		<!--SpringMVC是基于Servlet使用中央处理器处理页面请求，配置中央处理器的全路径-->
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<!-- 配置Spring mvc下的配置文件的位置和名称 -->
+		<init-param>
+			<!--当页面有请求时，DispatcherServlet对象调用这里，获取到SpringMVC的核心配置文件-->
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:spring-mvc.xml</param-value>
+		</init-param>
+		<!-- tomcat启动的时候加载这个servlet 优先级，数字越小级别越高 -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<!--将DispatcherServlet映射到‘/’-->
+	<servlet-mapping>
+		<!--指定请求的映射，链接为指定形式时，使用Servlet处理，其他链接不执行Servlet-->
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+<!--SpringMVC的相关设置 end-->
+
+<!-- ************************* 解决字符编码异常的过滤器 *************************  -->
+	 <filter>
+        <filter-name>EncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>utf-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceRequestEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceResponseEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>EncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+<!--alibaba druid WebStatFilter-->
+<filter>
+        <filter-name>DruidWebStatFilter</filter-name>
+        <filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+        <init-param>
+            <param-name>exclusions</param-name>
+            <param-value>*.js,*.gif,*.jpg,*.png,*.css,*.ico,*.jsp,/druid/*,/download/*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sessionStatMaxCount</param-name>
+            <param-value>2000</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sessionStatEnable</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>principalSessionName</param-name>
+            <param-value>session_user_key</param-value>
+        </init-param>
+        <init-param>
+            <param-name>profileEnable</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>DruidWebStatFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- 配置 Druid 监控信息显示页面 -->
+    <servlet>
+        <servlet-name>DruidStatView</servlet-name>
+        <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+        <init-param>
+            <!-- 允许清空统计数据 -->
+            <param-name>resetEnable</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <!-- 用户名 -->
+            <param-name>loginUsername</param-name>
+            <param-value>druid</param-value>
+        </init-param>
+        <init-param>
+            <!-- 密码 -->
+            <param-name>loginPassword</param-name>
+            <param-value>1</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DruidStatView</servlet-name>
+        <url-pattern>/druid/*</url-pattern>
+    </servlet-mapping>
+
+<!-- =========处理静态文件  采用 <mvc:resources location="/resource/" mapping="/resource/**"/>方式 " =========  -->
+<!-- 	<servlet-mapping>
+	     <servlet-name>default</servlet-name>
+	     <url-pattern>*.css</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	      <servlet-name>default</servlet-name>
+	      <url-pattern>*.gif</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	    <servlet-name>default</servlet-name>
+	     <url-pattern>*.jpg</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	     <servlet-name>default</servlet-name>
+	     <url-pattern>*.js</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	      <servlet-name>default</servlet-name>
+	      <url-pattern>*.html</url-pattern>
+	</servlet-mapping> -->
+	
+  <!-- 403错误拦截 -->
+  <error-page>
+    <error-code>403</error-code>
+    <location>/error/403.jsp</location>
+  </error-page>
+  <!-- 404错误拦截 -->
+  <error-page>
+    <error-code>404</error-code>
+    <location>/error/404.jsp</location>
+  </error-page>
+  <!-- 500错误拦截 -->
+  <error-page>
+    <error-code>500</error-code>
+    <location>/error/500.jsp</location>
+  </error-page>
+  
+</web-app>
